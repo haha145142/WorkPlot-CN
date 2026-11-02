@@ -42,7 +42,10 @@ replacements={
 "WorkPlot/Views/SettingsView.swift":[
 ("Text(selectedIcon.title)","Text(LocalizedStringKey(selectedIcon.title))"),
 ("Text(\"System\").tag(0)","Text(\"Follow System\").tag(0)")],
-"WorkPlot/Views/AppIconPickerView.swift":[("Text(option.title)","Text(LocalizedStringKey(option.title))")]
+"WorkPlot/Views/AppIconPickerView.swift":[("Text(option.title)","Text(LocalizedStringKey(option.title))")],
+"WorkPlot/Views/EligibilityView.swift":[
+("Text(title).font(.body.weight(.medium))","Text(LocalizedStringKey(title)).font(.body.weight(.medium))"),
+("Text(detail).font(.caption).foregroundStyle(.secondary)","Text(LocalizedStringKey(detail)).font(.caption).foregroundStyle(.secondary)")]
 }
 for rel,pairs in replacements.items():
  p=root/rel
