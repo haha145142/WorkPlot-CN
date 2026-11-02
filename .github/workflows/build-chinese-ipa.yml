@@ -19,6 +19,7 @@ jobs:
         run: |
           chmod +x Scripts/apply-localization.sh
           Scripts/apply-localization.sh "$RUNNER_TEMP/WorkPlot"
+          python3 Scripts/patch-compatibility.py "$RUNNER_TEMP/WorkPlot"
       - name: Resolve Swift packages
         run: |
           xcodebuild -resolvePackageDependencies -project "$RUNNER_TEMP/WorkPlot/WorkPlot/WorkPlot.xcodeproj" -scheme WorkPlot
