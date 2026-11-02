@@ -1,0 +1,41 @@
+name: Build WorkPlot Chinese IPA
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Check out localization overlay
+        uses: actions/checkout@v4
+      - name: Check out pinned upstream source
+        run: |
+          git clone https://github.com/gievano/WorkPlot.git "$RUNNER_TEMP/WorkPlot"
+          git -C "$RUNNER_TEMP/WorkPlot" checkout 0efe6e3f8740d213905afa5cee14846ed9bb91bf
+      - name: Apply Chinese localization
+        run: |
+          chmod +x Scripts/apply-localization.sh
+          Scripts/apply-localization.sh "$RUNNER_TEMP/WorkPlot"
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies -project "$RUNNER_TEMP/WorkPlot/WorkPlot/WorkPlot.xcodeproj" -scheme WorkPlot
+      - name: Build unsigned IPA
+        run: |
+          set -euo pipefail
+          SOURCE="$RUNNER_TEMP/WorkPlot"
+          ARCHIVE="$RUNNER_TEMP/WorkPlot-CN.xcarchive"
+          xcodebuild archive -project "$SOURCE/WorkPlot/WorkPlot.xcodeproj" -scheme WorkPlot -configuration Release -destination "generic/platform=iOS" -archivePath "$ARCHIVE" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$ARCHIVE/Products/Applications/WorkPlot.app" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry WorkPlot-CN.ipa Payload
+      - name: Upload unsigned IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WorkPlot-CN-unsigned-IPA
+          path: \${{ runner.temp }}/WorkPlot-CN.ipa
+          if-no-files-found: error
+          retention-days: 14
